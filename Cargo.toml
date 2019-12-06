@@ -1,9 +1,10 @@
 [package]
-name = "monitor-websites"
-version = "0.1.0"
 authors = ["Thomas Wickham <mackwic@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
+name = "monitor-websites"
+version = "0.1.0"
 [dependencies]
+chrono = "*"
+fern = { version = "*", features = [ "colored" ] }
+log = "*"
+reqwest = "*"
