@@ -2,6 +2,7 @@
 use log::{debug, error, info, trace, warn};
 use tokio::sync::mpsc::{self, Receiver, Sender};
 
+mod configuration;
 mod fetcher;
 mod logging;
 
@@ -20,29 +21,12 @@ pub enum Messages {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = configuration::load_configuration()?;
     logging::set_up_logging();
     info!("Starting program");
 
-    let websites = vec![
-        "https://scalingo.com",
-        "https://google.com",
-        "https://free.fr",
-        "https://example.com",
-        "https://www.clever-cloud.com/en/",
-        "https://platform.sh/",
-        "https://www.salesforce.com/editions-pricing/sales-cloud/",
-        "https://twitter.com",
-        "https://facebook.com",
-        "https://bing.com",
-        "https://imgur.com",
-        "https://inexistant.com",
-        "http://httpbin.org/status/500",
-        "http://httpbin.org/status/404",
-        "http://httpbin.org/status/401",
-        "http://httpbin.org/status/503",
-        "http://httpbin.org/status/504",
-    ];
-    let websites = websites
+    let websites = config
+        .websites
         .iter()
         .map(|site| reqwest::Url::parse(site).expect("Url should be valid !"))
         .collect();
@@ -55,8 +39,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     async {
         use std::time::Duration;
         use tokio::timer::Interval;
-        let mut iteration: u32 = 3;
-        let mut interval = Interval::new_interval(Duration::from_millis(5_000));
+        let mut iteration = config.stop_after_iteration;
+        let mut interval =
+            Interval::new_interval(Duration::from_millis(config.interval_between_fetch));
         let mut sender = sender.clone();
 
         sender.send(Messages::Start).await.unwrap();
@@ -64,7 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             iteration -= 1;
             interval.next().await;
             info!("[iteration:{}] Starting to fetch websites...", iteration);
-            fetcher::fetch_all_websites(&websites, sender.clone()).await;
+            fetcher::fetch_all_websites(&config, &websites, sender.clone()).await;
             info!("[iteration:{}] Fetching finished", iteration);
         }
         sender.send(Messages::End).await.unwrap();

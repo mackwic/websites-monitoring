@@ -1,0 +1,29 @@
+
+websites = [
+        "https://scalingo.com",
+        "https://google.com",
+        "https://free.fr",
+        "https://example.com",
+        "https://www.clever-cloud.com/en/",
+        "https://platform.sh/",
+        "https://www.salesforce.com/editions-pricing/sales-cloud/",
+        "https://twitter.com",
+        "https://facebook.com",
+        "https://bing.com",
+        "https://imgur.com",
+        "https://inexistant.com",
+        "http://httpbin.org/status/500",
+        "http://httpbin.org/status/404",
+        "http://httpbin.org/status/401",
+        "http://httpbin.org/status/503",
+        "http://httpbin.org/status/504",
+    ]
+
+# Stop after iteration N
+stop_after_iteration = 10
+
+# Number of websites to fetch in parallel
+parallel_fetch = 10
+
+# interval (in milliseconds between each fetching
+interval_between_fetch = 5_000

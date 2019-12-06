@@ -8,6 +8,8 @@ chrono = "*"
 futures = "*"
 log = "*"
 reqwest = "0.10.0-alpha.2"
+serde = { version = "*", features = ["derive"] }
+toml = "*"
 
 [dependencies.fern]
 features = ["colored"]

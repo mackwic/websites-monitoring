@@ -2,12 +2,16 @@ use futures::future::join_all;
 use std::pin::Pin;
 use tokio::sync::mpsc::Sender;
 
+use crate::configuration::Configuration;
 use crate::Messages;
 
 #[allow(clippy::ptr_arg)]
-pub async fn fetch_all_websites(websites: &Vec<reqwest::Url>, sender: Sender<Messages>) {
-    const HOW_MANY_SITES_IN_PARALLEL: usize = 10;
-    for sites_to_fetch_in_parrallel in websites.chunks(HOW_MANY_SITES_IN_PARALLEL) {
+pub async fn fetch_all_websites(
+    config: &Configuration,
+    websites: &Vec<reqwest::Url>,
+    sender: Sender<Messages>,
+) {
+    for sites_to_fetch_in_parrallel in websites.chunks(config.parallel_fetch) {
         let wait_for_fetch: Vec<Pin<Box<_>>> = sites_to_fetch_in_parrallel
             .iter()
             .map(|site| (site, sender.clone()))
