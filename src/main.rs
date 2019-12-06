@@ -26,6 +26,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "https://google.com",
         "https://free.fr",
         "https://example.com",
+        "https://www.clever-cloud.com/en/",
+        "https://platform.sh/",
+        "https://www.salesforce.com/editions-pricing/sales-cloud/",
+        "https://twitter.com",
+        "https://facebook.com",
+        "https://bing.com",
+        "https://imgur.com",
     ];
     let websites = websites
         .iter()
@@ -59,14 +66,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-async fn ping_websites(websites: &Vec<reqwest::Url>, mut sender: Sender<Messages>) {
-    for site in websites {
-        let start_message = Messages::StartPingSite(chrono::Local::now(), site.clone());
-        sender.send(start_message).await.unwrap();
-        let res = fetch_site(site).await;
+use futures::future::join_all;
 
-        let end_message = Messages::EndPingSite(chrono::Local::now(), site.clone(), res);
-        sender.send(end_message).await.unwrap();
+#[allow(clippy::ptr_arg)]
+async fn ping_websites(websites: &Vec<reqwest::Url>, sender: Sender<Messages>) {
+    const HOW_MANY_SITES_IN_PARALLEL: usize = 10;
+    for sites_to_fetch_in_parrallel in websites.chunks(HOW_MANY_SITES_IN_PARALLEL) {
+        use std::pin::Pin;
+
+        let wait_for_fetch: Vec<Pin<Box<_>>> = sites_to_fetch_in_parrallel
+            .iter()
+            .map(|site| (site, sender.clone()))
+            .map(move |(site, mut sender)| {
+                let future = async move {
+                    let start_message = Messages::StartPingSite(chrono::Local::now(), site.clone());
+                    sender.send(start_message).await.unwrap();
+                    let res = fetch_site(site).await;
+
+                    let end_message =
+                        Messages::EndPingSite(chrono::Local::now(), site.clone(), res);
+                    sender.send(end_message).await.unwrap();
+                };
+                Box::pin(future)
+            })
+            .collect();
+        join_all(wait_for_fetch).await;
     }
 }
 
