@@ -13,6 +13,7 @@ pub enum Messages {
         chrono::DateTime<chrono::Local>,
         reqwest::Url,
         Result<(), String>,
+        chrono::Duration,
     ),
     End,
 }
