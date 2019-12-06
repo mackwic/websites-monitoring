@@ -35,6 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (sender_end_channel, mut receiver_end_channel) = mpsc::channel(1);
 
     spawn_receiver(receiver, sender_end_channel);
+    spawn_http_server();
 
     async {
         use std::time::Duration;
@@ -73,5 +74,17 @@ fn spawn_receiver(mut receiver: Receiver<Messages>, mut sender_end_channel: Send
             .send(())
             .await
             .expect("error when sending End acknowledge");
+    });
+}
+
+fn spawn_http_server() {
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    let address = "127.0.0.1";
+
+    tokio::spawn(async move {
+        let server = simple_server::Server::new(|_request, mut response| {
+            Ok(response.body(b"Hello Rust!".to_vec()).unwrap())
+        });
+        server.listen(address, &port);
     });
 }

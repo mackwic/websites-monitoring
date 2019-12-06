@@ -5,15 +5,22 @@ name = "monitor-websites"
 version = "0.1.0"
 [dependencies]
 chrono = "*"
-diesel = { version = "*", features = ["postgres"] }
 futures = "*"
 log = "*"
 reqwest = "0.10.0-alpha.2"
-serde = { version = "*", features = ["derive"] }
+simple-server = "*"
 toml = "*"
+
+[dependencies.diesel]
+features = ["postgres"]
+version = "*"
 
 [dependencies.fern]
 features = ["colored"]
+version = "*"
+
+[dependencies.serde]
+features = ["derive"]
 version = "*"
 
 [dependencies.tokio]
