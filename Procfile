@@ -1,1 +1,1 @@
-web: cargo run
+web: target/release/monitor-websites
