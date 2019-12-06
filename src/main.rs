@@ -7,8 +7,8 @@ mod logging;
 #[derive(Debug)]
 enum Messages {
     Start,
-    StartCrawlingSite(chrono::DateTime<chrono::Local>, reqwest::Url),
-    EndCrawlingSite(
+    StartPingSite(chrono::DateTime<chrono::Local>, reqwest::Url),
+    EndPingSite(
         chrono::DateTime<chrono::Local>,
         reqwest::Url,
         Result<(), ()>,
@@ -37,7 +37,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     spawn_receiver(receiver, sender_end_channel);
 
-    ping_websites(&websites, sender).await;
+    async {
+        use std::time::Duration;
+        use tokio::timer::Interval;
+        let mut iteration: u32 = 10;
+        let mut interval = Interval::new_interval(Duration::from_millis(3_000));
+        let mut sender = sender.clone();
+
+        sender.send(Messages::Start).await.unwrap();
+        while iteration > 0 {
+            iteration -= 1;
+            interval.next().await;
+            ping_websites(&websites, sender.clone()).await;
+        }
+        sender.send(Messages::End).await.unwrap();
+    }
+        .await;
 
     receiver_end_channel.recv().await;
     debug!("Terminating program");
@@ -45,18 +60,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn ping_websites(websites: &Vec<reqwest::Url>, mut sender: Sender<Messages>) {
-    sender.send(Messages::Start).await.unwrap();
-
     for site in websites {
-        let start_message = Messages::StartCrawlingSite(chrono::Local::now(), site.clone());
+        let start_message = Messages::StartPingSite(chrono::Local::now(), site.clone());
         sender.send(start_message).await.unwrap();
         let res = fetch_site(site).await;
 
-        let end_message = Messages::EndCrawlingSite(chrono::Local::now(), site.clone(), res);
+        let end_message = Messages::EndPingSite(chrono::Local::now(), site.clone(), res);
         sender.send(end_message).await.unwrap();
     }
-
-    sender.send(Messages::End).await.unwrap();
 }
 
 async fn fetch_site(website: &reqwest::Url) -> Result<(), ()> {
@@ -79,7 +90,10 @@ async fn fetch_site(website: &reqwest::Url) -> Result<(), ()> {
 fn spawn_receiver(mut receiver: Receiver<Messages>, mut sender_end_channel: Sender<()>) {
     tokio::spawn(async move {
         while let Some(message) = receiver.recv().await {
-            info!("got {:?}", message)
+            match message {
+                Messages::End => break,
+                _ => info!("got {:?}", message),
+            }
         }
         sender_end_channel
             .send(())
