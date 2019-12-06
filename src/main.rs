@@ -46,11 +46,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         sender.send(Messages::Start).await.unwrap();
         while iteration > 0 {
-            iteration -= 1;
-            interval.next().await;
             info!("[iteration:{}] Starting to fetch websites...", iteration);
             fetcher::fetch_all_websites(&config, &websites, sender.clone()).await;
             info!("[iteration:{}] Fetching finished", iteration);
+            iteration -= 1;
+            interval.next().await;
         }
         sender.send(Messages::End).await.unwrap();
     }
