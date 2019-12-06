@@ -5,6 +5,10 @@ name = "monitor-websites"
 version = "0.1.0"
 [dependencies]
 chrono = "*"
-fern = { version = "*", features = [ "colored" ] }
 log = "*"
-reqwest = "*"
+reqwest = "0.10.0-alpha.2"
+tokio = { version = "0.2.0-alpha.6" }
+
+[dependencies.fern]
+features = ["colored"]
+version = "*"

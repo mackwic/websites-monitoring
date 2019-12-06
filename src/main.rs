@@ -4,23 +4,27 @@ use reqwest;
 
 mod logging;
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     logging::set_up_logging();
     info!("start of run");
 
-    let websites = vec!["https://scalingo.com"];
+    {
+        let websites = vec!["https://scalingo.com"];
 
-    for site in websites {
-        fetch_site(site);
-    }
+        for site in websites {
+            fetch_site(site).await;
+        }
+    };
 
     info!("end of run");
+    Ok(())
 }
 
-fn fetch_site(website: &str) {
+async fn fetch_site(website: &str) {
     debug!("Fetching site: {}", website);
 
-    let res = reqwest::get(website);
+    let res = reqwest::get(website).await;
 
     match res {
         Err(e) => error!("Error: {}", e),
