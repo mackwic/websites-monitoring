@@ -78,7 +78,7 @@ fn spawn_receiver(mut receiver: Receiver<Messages>, mut sender_end_channel: Send
 
 fn spawn_http_server() {
     let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
-    let address = "127.0.0.1";
+    let address = "0.0.0.0";
 
     tokio::spawn(async move {
         let server = simple_server::Server::new(|_request, mut response| {
