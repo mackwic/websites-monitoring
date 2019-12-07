@@ -21,10 +21,9 @@ pub enum Messages {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = configuration::load_configuration()?;
     logging::set_up_logging();
     info!("Starting program");
-
+    let config = configuration::load_configuration()?;
     let websites = config
         .websites
         .iter()
@@ -40,17 +39,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     async {
         use std::time::Duration;
         use tokio::timer::Interval;
-        let mut iteration = config.stop_after_iteration;
+        let mut iteration = 0;
         let mut interval =
             Interval::new_interval(Duration::from_millis(config.interval_between_fetch));
         let mut sender = sender.clone();
 
         sender.send(Messages::Start).await.unwrap();
-        while iteration > 0 {
+        while config.run_forever || iteration <= config.stop_after_iteration {
             info!("[iteration:{}] Starting to fetch websites...", iteration);
             fetcher::fetch_all_websites(&config, &websites, sender.clone()).await;
             info!("[iteration:{}] Fetching finished", iteration);
-            iteration -= 1;
+            iteration += 1;
             interval.next().await;
         }
         sender.send(Messages::End).await.unwrap();

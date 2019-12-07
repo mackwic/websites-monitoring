@@ -5,6 +5,7 @@ name = "monitor-websites"
 version = "0.1.0"
 [dependencies]
 chrono = "*"
+envy = "*"
 futures = "*"
 log = "*"
 reqwest = "0.10.0-alpha.2"

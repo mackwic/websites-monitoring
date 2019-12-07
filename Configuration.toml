@@ -21,6 +21,8 @@ websites = [
 
 # Stop after iteration N
 stop_after_iteration = 10
+# Unless run_forever is true, in this case... run forever
+run_forever = false
 
 # Number of websites to fetch in parallel
 parallel_fetch = 10
