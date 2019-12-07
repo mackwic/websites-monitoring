@@ -13,7 +13,7 @@ simple-server = "*"
 toml = "*"
 
 [dependencies.diesel]
-features = ["postgres"]
+features = ["postgres", "chrono"]
 version = "*"
 
 [dependencies.fern]

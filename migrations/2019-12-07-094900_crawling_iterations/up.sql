@@ -1,7 +1,7 @@
 
 CREATE TABLE crawling_session(
     id SERIAL PRIMARY KEY,
-    start_date timestamp NOT NULL,
+    start_date timestamp with time zone NOT NULL,
     url character varying NOT NULL,
     is_success boolean NOT NULL,
     duration interval NOT NULL

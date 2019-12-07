@@ -2,12 +2,16 @@
 use log::{debug, error, info, trace, warn};
 use tokio::sync::mpsc::{self, Receiver, Sender};
 
+#[macro_use]
+extern crate diesel;
+
 mod configuration;
 mod fetcher;
 mod http_server;
 mod iteration_ticker;
 mod logging;
 mod receiver;
+mod schema;
 
 #[derive(Debug)]
 pub enum Messages {
