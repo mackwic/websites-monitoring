@@ -4,6 +4,7 @@ table! {
         start_date -> Timestamptz,
         url -> Varchar,
         is_success -> Bool,
-        duration -> Interval,
+        duration_ms -> Int4,
+        error_description -> Nullable<Varchar>,
     }
 }

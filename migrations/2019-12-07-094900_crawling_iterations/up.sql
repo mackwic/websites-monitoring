@@ -4,7 +4,8 @@ CREATE TABLE crawling_session(
     start_date timestamp with time zone NOT NULL,
     url character varying NOT NULL,
     is_success boolean NOT NULL,
-    duration interval NOT NULL
+    duration_ms integer NOT NULL,
+    error_description varchar
 );
 
 CREATE INDEX index_start_date_on_crawling_session
@@ -17,3 +18,12 @@ CREATE INDEX index_url_on_crawling_session
 ON crawling_session(
     url
 );
+
+CREATE VIEW v_crawling_session_metabase AS
+SELECT
+    CAST(EXTRACT(EPOCH FROM "start_date") AS integer) as "start_date_ts",
+    "duration_ms",
+    "is_success",
+    "url"
+FROM crawling_session
+ORDER BY start_date_ts ASC;

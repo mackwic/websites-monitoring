@@ -13,7 +13,8 @@ struct NewCrawlResult {
     start_date: chrono::DateTime<chrono::Local>,
     url: String,
     is_success: bool,
-    duration: diesel::pg::data_types::PgInterval,
+    duration_ms: i32,
+    error_description: Option<String>,
 }
 
 pub fn spawn_receiver(mut receiver: Receiver<Messages>, mut sender_end_channel: Sender<()>) {
@@ -44,9 +45,8 @@ fn store_result(
         start_date: timestamp,
         url: url.into_string(),
         is_success: result.is_ok(),
-        duration: diesel::pg::data_types::PgInterval::from_microseconds(
-            duration.num_milliseconds(),
-        ),
+        duration_ms: duration.num_milliseconds() as i32,
+        error_description: result.err(),
     };
 
     let connection = establish_connection();
