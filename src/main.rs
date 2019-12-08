@@ -8,6 +8,7 @@ extern crate diesel;
 mod configuration;
 mod fetcher;
 mod http_server;
+mod infrastructure;
 mod iteration_ticker;
 mod logging;
 mod receiver;

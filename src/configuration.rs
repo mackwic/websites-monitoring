@@ -5,6 +5,7 @@ use std::path::Path;
 
 #[derive(Debug, serde::Deserialize)]
 pub struct Configuration {
+    #[serde(skip)]
     pub websites: Vec<String>,
     pub parallel_fetch: usize,
     pub interval_between_fetch: u64,
@@ -40,6 +41,10 @@ pub fn load_configuration() -> Result<Configuration, String> {
         .from_env()
         .expect("Environment should be readable");
 
+    // TODO handle error nicely
+    let websites_from_db =
+        crate::infrastructure::database::fetch_websites_to_crawl().expect("Should not have failed");
+
     let configuration = Configuration {
         interval_between_fetch: config_from_env
             .interval_between_fetch
@@ -53,7 +58,7 @@ pub fn load_configuration() -> Result<Configuration, String> {
         stop_after_iteration: config_from_env
             .stop_after_iteration
             .unwrap_or(default_config.stop_after_iteration),
-        websites: default_config.websites,
+        websites: websites_from_db,
     };
     info!("Configuration: {:#?}", configuration);
     Ok(configuration)
