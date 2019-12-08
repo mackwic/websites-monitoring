@@ -22,8 +22,10 @@ ON crawling_session(
 CREATE VIEW v_crawling_session_metabase AS
 SELECT
     CAST(EXTRACT(EPOCH FROM "start_date") AS integer) as "start_date_ts",
+    "start_date",
     "duration_ms",
     "is_success",
-    "url"
+    "url",
+    "error_description"
 FROM crawling_session
 ORDER BY start_date_ts ASC;
