@@ -5,14 +5,14 @@ use tokio::sync::mpsc::{self, Receiver, Sender};
 #[macro_use]
 extern crate diesel;
 
-mod configuration;
 mod fetcher;
-mod http_server;
 mod infrastructure;
 mod iteration_ticker;
-mod logging;
 mod receiver;
 mod schema;
+
+// re-export
+pub use infrastructure::configuration::Configuration;
 
 #[derive(Debug)]
 pub enum Messages {
@@ -29,16 +29,15 @@ pub enum Messages {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    logging::set_up_logging();
+    infrastructure::logging::set_up_logging();
     info!("Starting program");
-    let config = configuration::load_configuration()?;
+    let config = infrastructure::configuration::load_configuration()?;
+    infrastructure::http_server::spawn_http_server();
 
     let (sender, receiver): (Sender<Messages>, Receiver<Messages>) = mpsc::channel(10_000);
     let (sender_end_channel, mut receiver_end_channel): (Sender<()>, Receiver<()>) =
         mpsc::channel(1);
-
     receiver::spawn_receiver(receiver, sender_end_channel);
-    http_server::spawn_http_server();
     iteration_ticker::run_iterations(config, sender).await;
 
     receiver_end_channel.recv().await;

@@ -3,9 +3,8 @@ use std::time::Duration;
 use tokio::sync::mpsc::Sender;
 use tokio::timer::Interval;
 
-use crate::configuration::Configuration;
 use crate::fetcher;
-use crate::Messages;
+use crate::{Configuration, Messages};
 
 pub async fn run_iterations(config: Configuration, sender: Sender<Messages>) {
     let mut iteration: usize = 0;

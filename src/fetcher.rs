@@ -2,7 +2,7 @@ use futures::future::join_all;
 use std::pin::Pin;
 use tokio::sync::mpsc::Sender;
 
-use crate::configuration::Configuration;
+use crate::Configuration;
 use crate::Messages;
 
 #[allow(clippy::ptr_arg)]
