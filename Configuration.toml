@@ -17,11 +17,12 @@ websites = [
         "http://httpbin.org/status/401",
         "http://httpbin.org/status/503",
         "http://httpbin.org/status/504",
+        "https://bank.rakuten.eu",
     ]
 
-# Stop after iteration N
+# For Development: Stop after iteration N
 stop_after_iteration = 10
-# Unless run_forever is true, in this case... run forever
+# For Production: Unless run_forever is true, in this case... run forever
 run_forever = false
 
 # Number of websites to fetch in parallel
